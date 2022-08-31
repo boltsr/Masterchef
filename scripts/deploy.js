@@ -8,19 +8,18 @@ const hre = require("hardhat");
 
 async function main() {
   const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const ONE_YEAR_IN_SECS = 365 * 24 * 60 * 60;
-  const unlockTime = currentTimestampInSeconds + ONE_YEAR_IN_SECS;
+  const ONE_DAY_IN_SECS = 24 * 60 * 60;
+  const unlockTime = currentTimestampInSeconds + ONE_DAY_IN_SECS;
 
-  const lockedAmount = hre.ethers.utils.parseEther("1");
+  const targetAmount = hre.ethers.utils.parseEther("1");
 
-  const Lock = await hre.ethers.getContractFactory("Lock");
-  const lock = await Lock.deploy(unlockTime, { value: lockedAmount });
-
-  await lock.deployed();
-
-  console.log(
-    `Lock with 1 ETH and unlock timestamp ${unlockTime} deployed to ${lock.address}`
-  );
+  const Project = await hre.ethers.getContractFactory("RewardToken");
+  const project = await Project.deploy();
+  console.log("address:", project.address, unlockTime);
+  await project.deployed();
+  const ProjectFactory = await hre.ethers.getContractFactory("MasterChef");
+  const projectFactory = await ProjectFactory.deploy(project.address);
+  console.log("factory address:", projectFactory.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
